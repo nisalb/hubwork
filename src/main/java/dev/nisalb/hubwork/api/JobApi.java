@@ -93,7 +93,7 @@ public interface JobApi {
 
     @Operation(
             summary = "delete a job",
-            description = "Delete a job",
+            description = "Delete a job if it was not accepted or rejrected. Cancel otherwise",
             tags = "jobs"
     )
     @ApiResponses({
@@ -146,8 +146,8 @@ public interface JobApi {
 
     @Operation(
             summary = "make a job request",
-            description = "make a request for a worker for a job",
-            tags = { "jobs", "requests" }
+            description = "Make a request for a worker for a job",
+            tags = "requests"
     )
     @ApiResponses({
             @ApiResponse(
@@ -205,8 +205,8 @@ public interface JobApi {
 
     @Operation(
             summary = "get all requests for a job",
-            description = "get all requests for a job, optionally filtered by status",
-            tags = { "jobs", "requests" }
+            description = "Get all requests for a job, optionally filtered by status",
+            tags = "requests"
     )
     @ApiResponses({
             @ApiResponse(
@@ -226,9 +226,9 @@ public interface JobApi {
     );
 
     @Operation(
-            summary = "cancel a job request",
-            description = "cancel a job request.",
-            tags = { "jobs", "requests" }
+            summary = "delete a job request",
+            description = "Delete a job request if it is not accepted or rejected.",
+            tags = "requests"
     )
     @ApiResponses({
             @ApiResponse(
@@ -239,6 +239,11 @@ public interface JobApi {
             @ApiResponse(
                     responseCode = "404",
                     description = "job or request is not found"
+            ),
+            @ApiResponse(
+                    responseCode = "409",
+                    description = "conflicting operation",
+                    content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = ApiError.class))
             )
     })
     @DeleteMapping(value = "/jobs/{jobId}/requests/{reqId}", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -249,8 +254,8 @@ public interface JobApi {
 
     @Operation(
             summary = "update the request state",
-            description = "accept or reject a job request state by updating the state.",
-            tags = { "jobs", "requests" }
+            description = "Accept, reject or cancel a job request state by updating the state.",
+            tags = "requests"
     )
     @ApiResponses({
             @ApiResponse(
