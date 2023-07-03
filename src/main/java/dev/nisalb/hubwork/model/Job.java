@@ -3,6 +3,7 @@ package dev.nisalb.hubwork.model;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.Set;
 
@@ -22,7 +23,7 @@ public class Job {
 
     private Date dueDate;
 
-    private String price;
+    private BigDecimal price;
 
     private String currency;
 
