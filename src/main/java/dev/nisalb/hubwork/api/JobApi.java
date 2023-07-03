@@ -1,7 +1,7 @@
 package dev.nisalb.hubwork.api;
 
 import dev.nisalb.hubwork.api.payload.ApiError;
-import dev.nisalb.hubwork.api.payload.JobInformation;
+import dev.nisalb.hubwork.api.payload.JobPayload;
 import dev.nisalb.hubwork.api.payload.ReqeustInformation;
 import dev.nisalb.hubwork.model.Job;
 import dev.nisalb.hubwork.model.JobState;
@@ -20,6 +20,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 @Tag(name = "jobs", description = "The job API.")
 public interface JobApi {
@@ -37,10 +39,10 @@ public interface JobApi {
             )
     })
     @GetMapping(value = "/jobs", produces = MediaType.APPLICATION_JSON_VALUE )
-    ResponseEntity<List<Object>> findAllJobs(
-            @Parameter(description = "optional user id to filter by the job owner") @RequestParam(value = "ownerId", required = false) Long ownerId,
-            @Parameter(description = "optional job state to filter by job status") @RequestParam(value = "status", required = false) JobState state,
-            @Parameter(description = "optional user id to filter by the job worker") @RequestParam(value = "workerId", required = false) Long id
+    ResponseEntity<Set<Object>> findAllJobs(
+            @Parameter(description = "optional user id to filter by the job owner") @RequestParam(value = "ownerId", required = false) Optional<Long> ownerId,
+            @Parameter(description = "optional job state to filter by job status") @RequestParam(value = "status", required = false) Optional<JobState> state,
+            @Parameter(description = "optional user id to filter by the job worker") @RequestParam(value = "workerId", required = false) Optional<Long> workerId
     );
 
     @Operation(
@@ -67,7 +69,7 @@ public interface JobApi {
     })
     @PostMapping(value = "/jobs", consumes = { MediaType.APPLICATION_JSON_VALUE }, produces = { MediaType.APPLICATION_JSON_VALUE })
     ResponseEntity<Object> createJob(
-            @Parameter(description = "information of the job to be created") @RequestBody JobInformation payload
+            @Parameter(description = "information of the job to be created") @RequestBody JobPayload payload
     );
 
     @Operation(
@@ -141,7 +143,7 @@ public interface JobApi {
     @PutMapping(value = "/jobs/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     ResponseEntity<Object> updateJob(
             @Parameter(description = "job id to be updated") @PathVariable("id") Long id,
-            @Parameter(description = "new job information") @RequestBody JobInformation payload
+            @Parameter(description = "new job information") @RequestBody JobPayload payload
     );
 
     @Operation(
@@ -220,9 +222,9 @@ public interface JobApi {
             ),
     })
     @GetMapping(value = "/jobs/{id}/requests", produces = MediaType.APPLICATION_JSON_VALUE)
-    ResponseEntity<List<Object>> getAllRequestsForAJob(
+    ResponseEntity<Set<Object>> getAllRequestsForAJob(
             @Parameter(description = "id of the job") @PathVariable("id") Long id,
-            @Parameter(description = "optional request status") @RequestParam(value = "status", required = false) RequestState state
+            @Parameter(description = "optional request status") @RequestParam(value = "status", required = false) Optional<RequestState> state
     );
 
     @Operation(
