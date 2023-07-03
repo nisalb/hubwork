@@ -27,9 +27,19 @@ public class Job {
     private String currency;
 
     @OneToOne
+    @JoinColumn(
+            name = "owner_id",
+            nullable = false,
+            foreignKey = @ForeignKey(name = "owner_id_fk")
+    )
     private User owner;
 
     @OneToOne
+    @JoinColumn(
+            name = "worker_id",
+            nullable = true,
+            foreignKey = @ForeignKey(name = "worker_id_fk")
+    )
     private User worker;
 
     @Enumerated(EnumType.STRING)
