@@ -1,21 +1,33 @@
 package dev.nisalb.hubwork.model;
 
 import dev.nisalb.hubwork.model.key.RequestId;
-import jakarta.persistence.IdClass;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
+import jakarta.persistence.*;
+import lombok.*;
 
-@Data
-@Builder
-@AllArgsConstructor
+@Entity(name = "hw_jobrequest")
+@Getter
+@Setter
+@RequiredArgsConstructor
 @IdClass(RequestId.class)
 public class Request {
 
+    @Id
     private Long id;
 
+    @Id
+    @ManyToOne
+    @JoinColumn(
+            name = "job_id",
+            foreignKey = @ForeignKey(name = "job_id_fk")
+    )
     private Job job;
 
+    @Id
+    @ManyToOne
+    @JoinColumn(
+            name = "worker_id",
+            foreignKey = @ForeignKey(name = "worker_id_fk")
+    )
     private User worker;
 
     private RequestState state;
