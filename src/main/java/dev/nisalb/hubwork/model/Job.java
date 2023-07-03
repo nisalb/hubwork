@@ -29,6 +29,9 @@ public class Job {
     @OneToOne
     private User owner;
 
+    @OneToOne
+    private User worker;
+
     @Enumerated(EnumType.STRING)
     @ElementCollection
     private Set<PaymentMethod> paymentMethods;
