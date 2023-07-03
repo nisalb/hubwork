@@ -34,4 +34,11 @@ public class User {
 
     @Enumerated(EnumType.STRING)
     private UserRole role;
+
+    @ManyToOne(cascade = { CascadeType.PERSIST, CascadeType.MERGE })
+    @JoinColumn(
+            name = "business_id",
+            foreignKey = @ForeignKey(name = "business_id_fk")
+    )
+    private Business business;
 }
