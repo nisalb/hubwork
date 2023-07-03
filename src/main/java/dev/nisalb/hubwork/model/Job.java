@@ -1,7 +1,10 @@
 package dev.nisalb.hubwork.model;
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.math.BigDecimal;
 import java.util.Date;
@@ -47,8 +50,9 @@ public class Job {
     @ElementCollection
     private Set<PaymentMethod> paymentMethods;
 
+    @CreationTimestamp
     private Date postedAt;
 
     @Enumerated(EnumType.STRING)
-    private JobState state;
+    private JobState state = JobState.PENDING;
 }
