@@ -1,9 +1,12 @@
 package dev.nisalb.hubwork.service;
 
+import dev.nisalb.hubwork.api.payload.JobPayload;
 import dev.nisalb.hubwork.model.Job;
 import dev.nisalb.hubwork.model.JobState;
+import dev.nisalb.hubwork.model.PaymentMethod;
 import dev.nisalb.hubwork.model.UserRole;
 import dev.nisalb.hubwork.service.repo.JobRepository;
+import dev.nisalb.hubwork.service.repo.UserRepository;
 import dev.nisalb.hubwork.testUtil.Mocker;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -11,24 +14,44 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
 
+import java.math.BigDecimal;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.Optional;
 import java.util.Set;
 
-import static org.mockito.BDDMockito.*;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 class JobServiceTest {
 
     @Mock
     private JobRepository jobRepository;
-
+    @Mock
+    private UserRepository userRepository;
     @InjectMocks
     private JobService jobService;
 
+    private JobPayload goodPayload() {
+        var payload = new JobPayload();
+        payload.setTitle("A New Job");
+        payload.setDescription("This is a new Job");
+        payload.setDueDate(new Date(2024, Calendar.APRIL, 24));
+        payload.setPrice(BigDecimal.valueOf(187L));
+        payload.setCurrency("USD");
+        payload.setOwnerId(1L);
+        payload.setPaymentMethods(Set.of(PaymentMethod.CREDIT_CARD));
+
+        return payload;
+    }
+
     @Test
-    @DisplayName("Test the result of the getting all jobs in the system")
+    @DisplayName("Getting ALL jobs in the system")
     void testFindAllJobs() {
         var job1 = Mocker.newJob();
         var job2 = Mocker.newJob();
@@ -46,7 +69,7 @@ class JobServiceTest {
     }
 
     @Test
-    @DisplayName("Test the result when filtering jobs by owner id")
+    @DisplayName("FIltering jobs by OWNER")
     void testSearchJobsByOwner() {
         var owner = Mocker.newUser(UserRole.CUSTOMER);
         var job = Mocker.newJob(owner);
@@ -68,7 +91,7 @@ class JobServiceTest {
     }
 
     @Test
-    @DisplayName("Test the result when filtering jobs by state")
+    @DisplayName("Filtering jobs by STATE")
     void testSearchJobsByState() {
         var job1 = Mocker.newJob(JobState.GRANTED);
         var job2 = Mocker.newJob(JobState.GRANTED);
@@ -106,5 +129,103 @@ class JobServiceTest {
 
         verify(jobRepository)
                 .searchJobsBy(null, JobState.COMPLETED, null);
+    }
+
+    @Test
+    @DisplayName("Job creation")
+    void testJobCreationForGoodPayload() {
+        var payload = goodPayload();
+
+        var theUser = Mocker.newUser(UserRole.CUSTOMER);
+        theUser.setId(1L);
+
+        var theJob = new Job();
+        theJob.setId(1L);
+
+        given(userRepository.findById(payload.getOwnerId()))
+                .willReturn(Optional.of(theUser));
+        given(jobRepository.save(theJob))
+                .willReturn(theJob);
+
+        var result = jobService.createJob(payload, theJob);
+
+        assertTrue(result.isRight(), "create job failed");
+
+        var job = result.get();
+        assertEquals(1L, job.getId());
+        assertEquals(theUser, job.getOwner());
+
+        verify(userRepository)
+                .findById(payload.getOwnerId());
+        verify(jobRepository)
+                .save(theJob);
+    }
+
+    @Test
+    @DisplayName("Fail job creation when owner is not a CUSTOMER")
+    void testJobCreationFailedForNonCustomers() {
+        var payload = goodPayload();
+
+        var badUser = Mocker.newUser(UserRole.WORKER);
+        badUser.setId(1L);
+
+        given(userRepository.findById(payload.getOwnerId()))
+                .willReturn(Optional.of(badUser));
+
+        var result = jobService.createJob(payload, new Job());
+
+        assertTrue(result.isLeft(), "job creation successful for some reason");
+
+        var error = result.getLeft();
+        assertEquals(HttpStatus.BAD_REQUEST, error.getCode());
+        assertEquals("INVALID_USER", error.getTitle());
+
+        verify(userRepository)
+                .findById(payload.getOwnerId());
+    }
+
+    @Test
+    @DisplayName("Fail job creation for non-existent user")
+    void testJobCreationFailedForNonExistentUsers() {
+        var payload = goodPayload();
+
+        given(userRepository.findById(payload.getOwnerId()))
+                .willReturn(Optional.empty());
+
+        var result = jobService.createJob(payload, new Job());
+
+        assertTrue(result.isLeft());
+
+        var error = result.getLeft();
+        assertEquals(HttpStatus.BAD_REQUEST, error.getCode());
+        assertEquals("INVALID_ID", error.getTitle());
+
+        verify(userRepository)
+                .findById(payload.getOwnerId());
+    }
+
+    @Test
+    @DisplayName("Job update")
+    void testJobUpdateForGoodPayload() {
+        var payload = goodPayload();
+        var job = Mocker.newJob();
+        Long jobId = 1L;
+
+        given(jobRepository.findById(jobId))
+                .willReturn(Optional.of(job));
+        given(jobRepository.save(job))
+                .willReturn(job);
+
+        var result = jobService.updateJob(jobId, payload);
+
+        assertTrue(result.isRight(), "job update failed");
+
+        var updated = result.get();
+        assertEquals(payload.getTitle(), updated.getTitle());
+
+        verify(jobRepository)
+                .findById(jobId);
+        verify(jobRepository)
+                .save(job);
     }
 }
