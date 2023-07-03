@@ -6,7 +6,7 @@ import lombok.*;
 import java.util.Date;
 import java.util.Set;
 
-@Entity
+@Entity(name = "hw_job")
 @Getter
 @Setter
 @RequiredArgsConstructor
