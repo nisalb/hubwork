@@ -19,7 +19,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -39,7 +38,7 @@ public interface JobApi {
             )
     })
     @GetMapping(value = "/jobs", produces = MediaType.APPLICATION_JSON_VALUE )
-    ResponseEntity<Set<Object>> findAllJobs(
+    ResponseEntity<Set<Job>> findAllJobs(
             @Parameter(description = "optional user id to filter by the job owner") @RequestParam(value = "ownerId", required = false) Optional<Long> ownerId,
             @Parameter(description = "optional job state to filter by job status") @RequestParam(value = "status", required = false) Optional<JobState> state,
             @Parameter(description = "optional user id to filter by the job worker") @RequestParam(value = "workerId", required = false) Optional<Long> workerId
@@ -89,7 +88,7 @@ public interface JobApi {
             )
     })
     @GetMapping(value = "/jobs/{id}", produces = MediaType.APPLICATION_JSON_VALUE )
-    ResponseEntity<Object> findJob(
+    ResponseEntity<Job> findJob(
             @Parameter(description = "job id to be found") @PathVariable("id") Long id
     );
 
