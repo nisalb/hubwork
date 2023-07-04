@@ -3,7 +3,7 @@ package dev.nisalb.hubwork.api.impl;
 import dev.nisalb.hubwork.api.JobApi;
 import dev.nisalb.hubwork.api.payload.ApiError;
 import dev.nisalb.hubwork.api.payload.JobPayload;
-import dev.nisalb.hubwork.api.payload.ReqeustInformation;
+import dev.nisalb.hubwork.api.payload.RequestPayload;
 import dev.nisalb.hubwork.model.Job;
 import dev.nisalb.hubwork.model.JobState;
 import dev.nisalb.hubwork.model.RequestState;
@@ -102,7 +102,7 @@ public class JobApiController implements JobApi {
     }
 
     @Override
-    public ResponseEntity<Object> makeRequest(Long id, ReqeustInformation payload) {
+    public ResponseEntity<Object> makeRequest(Long id, RequestPayload payload) {
         // TODO
         return ResponseEntity.ok("makeRequest:" + id);
     }
@@ -126,7 +126,7 @@ public class JobApiController implements JobApi {
     }
 
     @Override
-    public ResponseEntity<Object> updateRequest(Long jobId, Long reqId, ReqeustInformation payload) {
+    public ResponseEntity<Object> updateRequest(Long jobId, Long reqId, RequestPayload payload) {
         // TODO
         return ResponseEntity.ok("updateRequest:" + jobId + ":" + reqId);
     }

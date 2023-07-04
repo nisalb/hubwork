@@ -2,7 +2,7 @@ package dev.nisalb.hubwork.api;
 
 import dev.nisalb.hubwork.api.payload.ApiError;
 import dev.nisalb.hubwork.api.payload.JobPayload;
-import dev.nisalb.hubwork.api.payload.ReqeustInformation;
+import dev.nisalb.hubwork.api.payload.RequestPayload;
 import dev.nisalb.hubwork.model.Job;
 import dev.nisalb.hubwork.model.JobState;
 import dev.nisalb.hubwork.model.Request;
@@ -179,7 +179,7 @@ public interface JobApi {
     @PostMapping(value = "/jobs/{id}/requests", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     ResponseEntity<Object> makeRequest(
             @Parameter(description = "id of the job which the request is made for") @PathVariable("id") Long id,
-            @Parameter(description = "request information") @RequestBody ReqeustInformation payload
+            @Parameter(description = "request information") @RequestBody RequestPayload payload
     );
 
     @Operation(
@@ -278,6 +278,6 @@ public interface JobApi {
     ResponseEntity<Object> updateRequest(
             @Parameter(description = "id of the job") @PathVariable("jobId") Long jobId,
             @Parameter(description = "id of the request") @PathVariable("reqId") Long reqId,
-            @Parameter(description = "new request state. only the state can be updated") @RequestBody ReqeustInformation payload
+            @Parameter(description = "new request state. only the state can be updated") @RequestBody RequestPayload payload
     );
 }
