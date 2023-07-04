@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 
 @Tag(name = "jobs", description = "The job API.")
 public interface JobApi {
@@ -198,8 +199,8 @@ public interface JobApi {
                     description = "not found"
             )
     })
-    @GetMapping(value = "/jobs/{jobId}/requests/{reqId}", produces = MediaType.APPLICATION_JSON_VALUE )
-    ResponseEntity<Object> findRequest(
+    @GetMapping(value = "/jobs/{jobId}/requests/{reqId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    ResponseEntity<Request> findRequest(
             @Parameter(description = "job id of the request") @PathVariable("jobId") Long jobId,
             @Parameter(description = "id of the request") @PathVariable("reqId") Long reqId
     );
@@ -221,7 +222,7 @@ public interface JobApi {
             ),
     })
     @GetMapping(value = "/jobs/{id}/requests", produces = MediaType.APPLICATION_JSON_VALUE)
-    ResponseEntity<Set<Object>> getAllRequestsForAJob(
+    ResponseEntity<Set<Request>> getAllRequestsForAJob(
             @Parameter(description = "id of the job") @PathVariable("id") Long id,
             @Parameter(description = "optional request status") @RequestParam(value = "status", required = false) Optional<RequestState> state
     );
