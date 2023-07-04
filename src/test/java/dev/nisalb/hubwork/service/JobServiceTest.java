@@ -74,7 +74,7 @@ class JobServiceTest {
         var owner = Mocker.newUser(UserRole.CUSTOMER);
         var job = Mocker.newJob(owner);
 
-        given(jobRepository.searchJobsBy(owner.getId(), null, null))
+        given(jobRepository.searchBy(owner.getId(), null, null))
                 .willReturn(Set.of(job));
 
         Set<Job> jobs = jobService.searchJobsBy(
@@ -87,7 +87,7 @@ class JobServiceTest {
         assertEquals(1, jobs.size());
 
         verify(jobRepository)
-                .searchJobsBy(owner.getId(), null, null);
+                .searchBy(owner.getId(), null, null);
     }
 
     @Test
@@ -98,7 +98,7 @@ class JobServiceTest {
         var job3 = Mocker.newJob(JobState.COMPLETED);
 
         // for GRANTED state
-        given(jobRepository.searchJobsBy(null, JobState.GRANTED, null))
+        given(jobRepository.searchBy(null, JobState.GRANTED, null))
                 .willReturn(Set.of(job1, job2));
 
         Set<Job> granted = jobService.searchJobsBy(
@@ -112,10 +112,10 @@ class JobServiceTest {
         assertTrue(granted.contains(job2));
 
         verify(jobRepository)
-                .searchJobsBy(null, JobState.GRANTED, null);
+                .searchBy(null, JobState.GRANTED, null);
 
         // for COMPLETED state
-        given(jobRepository.searchJobsBy(null, JobState.COMPLETED, null))
+        given(jobRepository.searchBy(null, JobState.COMPLETED, null))
                 .willReturn(Set.of(job3));
 
         Set<Job> completed = jobService.searchJobsBy(
@@ -128,7 +128,7 @@ class JobServiceTest {
         assertTrue(completed.contains(job3));
 
         verify(jobRepository)
-                .searchJobsBy(null, JobState.COMPLETED, null);
+                .searchBy(null, JobState.COMPLETED, null);
     }
 
     @Test
@@ -152,8 +152,7 @@ class JobServiceTest {
         assertTrue(result.isRight(), "create job failed");
 
         var job = result.get();
-        assertEquals(1L, job.getId());
-        assertEquals(theUser, job.getOwner());
+        assertEquals(theJob, job);
 
         verify(userRepository)
                 .findById(payload.getOwnerId());
