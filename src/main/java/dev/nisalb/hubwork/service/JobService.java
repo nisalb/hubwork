@@ -15,7 +15,6 @@ import lombok.Setter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -60,24 +59,12 @@ public class JobService {
 
         Optional<User> givenUser = userRepository.findById(payload.getOwnerId());
         if (givenUser.isEmpty()) {
-            return Either.left(
-                    ApiError.builder()
-                            .code(HttpStatus.BAD_REQUEST)
-                            .title("INVALID_ID")
-                            .description("No such user for id: " + payload.getOwnerId())
-                            .build()
-            );
+            return Either.left(ApiError.noSuchUser(payload.getOwnerId()));
         }
         var owner = givenUser.get();
 
         if (!owner.getRole().equals(UserRole.CUSTOMER)) {
-            return Either.left(
-                    ApiError.builder()
-                            .code(HttpStatus.BAD_REQUEST)
-                            .title("INVALID_USER")
-                            .description("User must be a customer to create a job")
-                            .build()
-            );
+            return Either.left(ApiError.invalidUserRole(owner.getRole()));
         }
 
         // good to go
@@ -89,13 +76,7 @@ public class JobService {
             saved = jobRepository.save(job);
         } catch (Exception ex) {
             logger.warn("Exception while saving the job", ex);
-            return Either.left(
-                    ApiError.builder()
-                            .code(HttpStatus.INTERNAL_SERVER_ERROR)
-                            .title("UNKNOWN_SERVER_ERROR")
-                            .description("Unknown error occurred while saving the Job")
-                            .build()
-            );
+            return Either.left(ApiError.internalServerError());
         }
 
         return Either.right(saved);
@@ -108,13 +89,7 @@ public class JobService {
     public Either<ApiError, Job> updateJob(Long id, JobPayload payload) {
         Optional<Job> givenJob = jobRepository.findById(id);
         if (givenJob.isEmpty()) {
-            return Either.left(
-                    ApiError.builder()
-                            .code(HttpStatus.BAD_REQUEST)
-                            .title("INVALID_ID")
-                            .description("No such job for id: " + id)
-                            .build()
-            );
+            return Either.left(ApiError.noSuchJob(id));
         }
 
         var job = givenJob.get();
@@ -127,33 +102,20 @@ public class JobService {
         job.setCurrency(payload.getCurrency());
         job.setDueDate(payload.getDueDate());
 
-        Job updated;
         try {
-            updated = jobRepository.save(job);
+            job = jobRepository.save(job);
         } catch (Exception ex) {
             logger.warn("Exception while updating the job", ex);
-            return Either.left(
-                    ApiError.builder()
-                            .code(HttpStatus.INTERNAL_SERVER_ERROR)
-                            .title("UNKNOWN_ERROR")
-                            .description("Unknown server error occurred while updating the job")
-                            .build()
-            );
+            return Either.left(ApiError.internalServerError());
         }
 
-        return Either.right(updated);
+        return Either.right(job);
     }
 
     public Either<ApiError, Job> deleteJob(Long id) {
         Optional<Job> givenJob = jobRepository.findById(id);
         if (givenJob.isEmpty()) {
-            return Either.left(
-                    ApiError.builder()
-                            .code(HttpStatus.BAD_REQUEST)
-                            .title("INVALID_ID")
-                            .description("No such job for id: " + id)
-                            .build()
-            );
+            return Either.left(ApiError.noSuchJob(id));
         }
 
         var job = givenJob.get();
