@@ -1,5 +1,7 @@
 package dev.nisalb.hubwork.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import dev.nisalb.hubwork.model.key.RequestId;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -22,21 +24,26 @@ public class Request {
     private UUID id;
 
     @Id
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.MERGE)
     @JoinColumn(
             name = "job_id",
+            nullable = false,
             foreignKey = @ForeignKey(name = "job_id_fk")
     )
+    @JsonIgnore
     private Job job;
 
     @Id
     @ManyToOne
     @JoinColumn(
             name = "worker_id",
+            nullable = false,
             foreignKey = @ForeignKey(name = "worker_id_fk")
     )
+    @JsonIgnore
     private User worker;
 
+    @Enumerated(EnumType.STRING)
     private RequestState state;
 
     @CreationTimestamp
@@ -45,6 +52,7 @@ public class Request {
     @UpdateTimestamp
     private Timestamp lastModifiedAt;
 
+    @JsonIgnore
     public RequestId getId() {
         return new RequestId(id, job, worker);
     }
@@ -53,5 +61,20 @@ public class Request {
         this.id = id.getId();
         this.job = id.getJob();
         this.worker = id.getWorker();
+    }
+
+    @JsonProperty("worker_id")
+    public Long getWorkerId() {
+        return worker.getId();
+    }
+
+    @JsonProperty("job_id")
+    public Long getJobId() {
+        return job.getId();
+    }
+
+    @JsonProperty("id")
+    public UUID getUniqueId() {
+        return this.id;
     }
 }

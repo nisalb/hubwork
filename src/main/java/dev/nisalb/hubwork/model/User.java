@@ -1,6 +1,7 @@
 package dev.nisalb.hubwork.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -35,10 +36,19 @@ public class User {
     @Enumerated(EnumType.STRING)
     private UserRole role;
 
-    @ManyToOne(cascade = { CascadeType.PERSIST, CascadeType.MERGE })
+    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinColumn(
             name = "business_id",
             foreignKey = @ForeignKey(name = "business_id_fk")
     )
+    @JsonIgnore
     private Business business;
+
+    @JsonProperty("business_id")
+    private Long getBusinessId() {
+        if (business == null)
+            return null;
+
+        return business.getId();
+    }
 }

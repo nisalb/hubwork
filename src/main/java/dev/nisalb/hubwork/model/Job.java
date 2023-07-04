@@ -1,5 +1,7 @@
 package dev.nisalb.hubwork.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -36,6 +38,7 @@ public class Job {
             nullable = false,
             foreignKey = @ForeignKey(name = "owner_id_fk")
     )
+    @JsonIgnore
     private User owner;
 
     @OneToOne
@@ -44,10 +47,11 @@ public class Job {
             nullable = true,
             foreignKey = @ForeignKey(name = "worker_id_fk")
     )
+    @JsonIgnore
     private User worker;
 
     @Enumerated(EnumType.STRING)
-    @ElementCollection
+    @ElementCollection(targetClass = PaymentMethod.class)
     private Set<PaymentMethod> paymentMethods;
 
     @CreationTimestamp
@@ -55,4 +59,24 @@ public class Job {
 
     @Enumerated(EnumType.STRING)
     private JobState state = JobState.PENDING;
+
+    @OneToMany(
+            mappedBy = "job",
+            fetch = FetchType.LAZY,
+            cascade = {CascadeType.REMOVE}
+    )
+    @JsonIgnore
+    private Set<Request> requests;
+
+    @JsonProperty("owner_id")
+    public Long getOwnerId() {
+        return owner.getId();
+    }
+
+    @JsonProperty("worker_id")
+    public Long getWorkerId() {
+        if (worker == null)
+            return null;
+        return worker.getId();
+    }
 }
