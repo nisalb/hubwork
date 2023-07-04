@@ -4,14 +4,13 @@ import com.github.javafaker.Faker;
 import com.github.javafaker.Name;
 import dev.nisalb.hubwork.model.*;
 import dev.nisalb.hubwork.model.key.RequestId;
-import org.checkerframework.checker.units.qual.A;
 
 import java.math.BigDecimal;
 import java.sql.Date;
 import java.time.Instant;
 import java.util.HashSet;
 import java.util.Random;
-import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -144,7 +143,7 @@ public class Mocker {
 
     public static Request newRequest(Job job, User worker, RequestState state) {
         var r = new Request();
-        r.setId(new RequestId(idSeq.getAndIncrement(), job, worker));
+        r.setId(new RequestId(UUID.randomUUID(), job, worker));
 
         if (state == null)
             state = RequestState.PENDING;
