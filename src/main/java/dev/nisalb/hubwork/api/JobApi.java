@@ -2,11 +2,8 @@ package dev.nisalb.hubwork.api;
 
 import dev.nisalb.hubwork.api.payload.ApiError;
 import dev.nisalb.hubwork.api.payload.JobPayload;
-import dev.nisalb.hubwork.api.payload.RequestPayload;
 import dev.nisalb.hubwork.model.Job;
 import dev.nisalb.hubwork.model.JobState;
-import dev.nisalb.hubwork.model.Request;
-import dev.nisalb.hubwork.model.RequestState;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -21,9 +18,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
 import java.util.Set;
-import java.util.UUID;
 
-@Tag(name = "jobs", description = "The job API.")
+@Tag(name = "jobs", description = "The jobs API.")
 public interface JobApi {
 
     @Operation(
@@ -144,141 +140,5 @@ public interface JobApi {
     ResponseEntity<Object> updateJob(
             @Parameter(description = "job id to be updated") @PathVariable("id") Long id,
             @Parameter(description = "new job information") @RequestBody JobPayload payload
-    );
-
-    @Operation(
-            summary = "make a job request",
-            description = "Make a request for a worker for a job",
-            tags = "requests"
-    )
-    @ApiResponses({
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "successful operation",
-                    content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = Request.class))
-            ),
-            @ApiResponse(
-                    responseCode = "400",
-                    description = "request failed due to a malformed payload",
-                    content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = ApiError.class))
-            ),
-            @ApiResponse(
-                    responseCode = "404",
-                    description = "job not found"
-            ),
-            @ApiResponse(
-                    responseCode = "409",
-                    description = "conflicting operation",
-                    content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = ApiError.class))
-            ),
-            @ApiResponse(
-                    responseCode = "500",
-                    description = "request failed due to a system error",
-                    content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = ApiError.class))
-            )
-    })
-    @PostMapping(value = "/jobs/{id}/requests", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    ResponseEntity<Object> makeRequest(
-            @Parameter(description = "id of the job which the request is made for") @PathVariable("id") Long id,
-            @Parameter(description = "request information") @RequestBody RequestPayload payload
-    );
-
-    @Operation(
-            summary = "find a job request",
-            description = "Find a job request by ID",
-            tags = "jobs"
-    )
-    @ApiResponses({
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "successful operation",
-                    content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = Request.class))
-            ),
-            @ApiResponse(
-                    responseCode = "404",
-                    description = "not found"
-            )
-    })
-    @GetMapping(value = "/jobs/{jobId}/requests/{reqId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    ResponseEntity<Request> findRequest(
-            @Parameter(description = "job id of the request") @PathVariable("jobId") Long jobId,
-            @Parameter(description = "id of the request") @PathVariable("reqId") UUID reqId
-    );
-
-    @Operation(
-            summary = "get all requests for a job",
-            description = "Get all requests for a job, optionally filtered by status",
-            tags = "requests"
-    )
-    @ApiResponses({
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "successful operation",
-                    content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, array = @ArraySchema(schema = @Schema(implementation = Request.class)))
-            ),
-            @ApiResponse(
-                    responseCode = "404",
-                    description = "job not found"
-            ),
-    })
-    @GetMapping(value = "/jobs/{id}/requests", produces = MediaType.APPLICATION_JSON_VALUE)
-    ResponseEntity<Set<Request>> getAllRequestsForAJob(
-            @Parameter(description = "id of the job") @PathVariable("id") Long id,
-            @Parameter(description = "optional request status") @RequestParam(value = "status", required = false) Optional<RequestState> state
-    );
-
-    @Operation(
-            summary = "delete a job request",
-            description = "Delete a job request if it is not accepted or rejected.",
-            tags = "requests"
-    )
-    @ApiResponses({
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "successful operation",
-                    content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = Request.class))
-            ),
-            @ApiResponse(
-                    responseCode = "404",
-                    description = "job or request is not found"
-            ),
-            @ApiResponse(
-                    responseCode = "409",
-                    description = "conflicting operation",
-                    content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = ApiError.class))
-            )
-    })
-    @DeleteMapping(value = "/jobs/{jobId}/requests/{reqId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    ResponseEntity<Object> cancelRequest(
-            @Parameter(description = "id of the job") @PathVariable("jobId") Long jobId,
-            @Parameter(description = "id of the request") @PathVariable("reqId") UUID reqId
-    );
-
-    @Operation(
-            summary = "update the request state",
-            description = "Accept, reject or cancel a job request state by updating the state.",
-            tags = "requests"
-    )
-    @ApiResponses({
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "successful operation",
-                    content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = Request.class))
-            ),
-            @ApiResponse(
-                    responseCode = "404",
-                    description = "job or request is not found"
-            ),
-            @ApiResponse(
-                    responseCode = "409",
-                    description = "conflicting operation",
-                    content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = ApiError.class))
-            )
-    })
-    @PatchMapping(value = "/jobs/{jobId}/requests/{reqId}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    ResponseEntity<Object> updateRequest(
-            @Parameter(description = "id of the job") @PathVariable("jobId") Long jobId,
-            @Parameter(description = "id of the request") @PathVariable("reqId") UUID reqId,
-            @Parameter(description = "new request state. only the state can be updated") @RequestBody RequestPayload payload
     );
 }
