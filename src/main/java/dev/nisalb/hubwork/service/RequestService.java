@@ -95,7 +95,7 @@ public class RequestService {
         }
 
         var givenRequest = requestRepository.findByUniqueId(reqId);
-        if (givenRequest.isPresent()) {
+        if (givenRequest.isEmpty()) {
             return Either.left(ApiError.noSuchRequest(reqId));
         }
 
@@ -110,6 +110,7 @@ public class RequestService {
             request = requestRepository.save(request);
         } catch (Exception ex) {
             logger.warn("Unexpected error occurred while updating the job state.");
+            return Either.left(ApiError.internalServerError());
         }
 
         return Either.right(request);
