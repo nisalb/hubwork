@@ -40,7 +40,7 @@ public class JobService {
             Optional<JobState> state,
             Optional<Long> workerId
     ) {
-        var found = jobRepository.searchJobsBy(
+        var found = jobRepository.searchBy(
                 ownerId.orElse(null),
                 state.orElse(null),
                 workerId.orElse(null)
@@ -54,6 +54,8 @@ public class JobService {
         job.setCurrency(payload.getCurrency());
         job.setPrice(payload.getPrice());
         job.setPaymentMethods(payload.getPaymentMethods());
+        job.setState(JobState.PENDING);
+        job.setDueDate(payload.getDueDate());
 
         // owner must exist and be a CUSTOMER to continue
 
@@ -64,7 +66,7 @@ public class JobService {
         var owner = givenUser.get();
 
         if (!owner.getRole().equals(UserRole.CUSTOMER)) {
-            return Either.left(ApiError.invalidUserRole(owner.getRole()));
+            return Either.left(ApiError.invalidUserRole(owner.getRole(), UserRole.CUSTOMER));
         }
 
         // good to go
