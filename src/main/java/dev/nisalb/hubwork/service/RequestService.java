@@ -20,13 +20,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
-import static dev.nisalb.hubwork.model.RequestState.*;
-import static java.util.Map.entry;
+import static dev.nisalb.hubwork.model.RequestState.ACCEPTED;
 
 @Service
 public class RequestService {
@@ -41,13 +39,6 @@ public class RequestService {
 
     @Setter(onMethod = @__({@Autowired}))
     private JobRepository jobRepository;
-
-    private final static Map<RequestState, Set<RequestState>> validJobStateTransitions = Map.ofEntries(
-            entry(PENDING, Set.of(ACCEPTED, REJECTED, CANCELLED)),
-            entry(ACCEPTED, Set.of(CANCELLED)),
-            entry(REJECTED, Set.of(ACCEPTED, CANCELLED)),
-            entry(CANCELLED, Set.of())
-    );
 
     public Either<ApiError, Request> createRequest(Long jobId, CreateRequestPayload payload, Request request) {
 
@@ -104,7 +95,7 @@ public class RequestService {
         }
 
         var request = givenRequest.get();
-        if (!isValidTransition(request.getState(), payload.getState())) {
+        if (!RequestState.isValidTransition(request.getState(), payload.getState())) {
             return Either.left(ApiError.invalidRequestStateTransition(request.getState(), payload.getState()));
         }
 
@@ -146,10 +137,5 @@ public class RequestService {
                 state.map(RequestState::name).orElse(null)
         );
         return Sets.newHashSet(found);
-    }
-
-    private boolean isValidTransition(RequestState from, RequestState to) {
-        return validJobStateTransitions.containsKey(from) &&
-                validJobStateTransitions.get(from).contains(to);
     }
 }
