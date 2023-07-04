@@ -13,4 +13,14 @@ public interface RequestRepository extends CrudRepository<Request, RequestId> {
 
     @Query("select r from hw_jobrequest r where r.id = :uuid")
     Optional<Request> findByUniqueId(@Param("uuid") UUID uuid);
+
+    @Query("select r from hw_jobrequest r " +
+            "where (:job_id is null or r.job.id = :job_id)" +
+            "  and (cast(:req_id as org.hibernate.type.UUIDCharType) is null or r.id = :req_id) " +
+            "  and (:state is null or r.state = :state) ")
+    Iterable<Request> searchBy(
+            @Param("job_id") Long jobId,
+            @Param("req_id") UUID reqId,
+            @Param("state") String state
+    );
 }

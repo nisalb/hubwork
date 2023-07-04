@@ -72,17 +72,17 @@ public class ApiError {
                 .build();
     }
 
-    public static ApiError invalidUserRole(UserRole role) {
+    public static ApiError invalidUserRole(UserRole actual, UserRole expected) {
         return ApiError.builder()
                 .code(HttpStatus.BAD_REQUEST)
                 .title("INVALID_USER")
-                .description("specified user is not a " + role.name())
+                .description("specified user is a " + actual.name() + ", requires a " + expected)
                 .build();
     }
 
     public static ApiError duplicateRequest(UUID id) {
         return ApiError.builder()
-                .code(HttpStatus.BAD_REQUEST)
+                .code(HttpStatus.CONFLICT)
                 .title("DUPLICATE_REQUEST")
                 .description("This request is already created: " + id)
                 .build();
@@ -106,7 +106,7 @@ public class ApiError {
 
     public static ApiError invalidRequestStateTransition(RequestState from, RequestState to) {
         return ApiError.builder()
-                .code(HttpStatus.BAD_REQUEST)
+                .code(HttpStatus.CONFLICT)
                 .title("INVALID_REQUEST_STATE")
                 .description("Invalid request state update from '" + from.name() + "' to '" + to.name() + "'")
                 .build();
