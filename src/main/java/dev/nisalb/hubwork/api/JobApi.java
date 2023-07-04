@@ -202,7 +202,7 @@ public interface JobApi {
     @GetMapping(value = "/jobs/{jobId}/requests/{reqId}", produces = MediaType.APPLICATION_JSON_VALUE)
     ResponseEntity<Request> findRequest(
             @Parameter(description = "job id of the request") @PathVariable("jobId") Long jobId,
-            @Parameter(description = "id of the request") @PathVariable("reqId") Long reqId
+            @Parameter(description = "id of the request") @PathVariable("reqId") UUID reqId
     );
 
     @Operation(
@@ -251,7 +251,7 @@ public interface JobApi {
     @DeleteMapping(value = "/jobs/{jobId}/requests/{reqId}", produces = MediaType.APPLICATION_JSON_VALUE)
     ResponseEntity<Object> cancelRequest(
             @Parameter(description = "id of the job") @PathVariable("jobId") Long jobId,
-            @Parameter(description = "id of the request") @PathVariable("reqId") Long reqId
+            @Parameter(description = "id of the request") @PathVariable("reqId") UUID reqId
     );
 
     @Operation(
@@ -278,7 +278,7 @@ public interface JobApi {
     @PatchMapping(value = "/jobs/{jobId}/requests/{reqId}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     ResponseEntity<Object> updateRequest(
             @Parameter(description = "id of the job") @PathVariable("jobId") Long jobId,
-            @Parameter(description = "id of the request") @PathVariable("reqId") Long reqId,
+            @Parameter(description = "id of the request") @PathVariable("reqId") UUID reqId,
             @Parameter(description = "new request state. only the state can be updated") @RequestBody RequestPayload payload
     );
 }
