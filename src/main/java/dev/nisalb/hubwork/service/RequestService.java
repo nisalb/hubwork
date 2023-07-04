@@ -1,5 +1,7 @@
 package dev.nisalb.hubwork.service;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import dev.nisalb.hubwork.api.payload.ApiError;
 import dev.nisalb.hubwork.api.payload.RequestPayload;
 import dev.nisalb.hubwork.model.JobState;
@@ -18,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
@@ -114,6 +117,29 @@ public class RequestService {
         }
 
         return Either.right(request);
+    }
+
+    public Optional<Request> findRequest(Long jobId, UUID reqId) {
+        var result = requestRepository.searchBy(jobId, reqId, null);
+
+        // there is either one or no requests for this criteria
+        var request = Lists.newArrayList(result).get(0);
+
+        return Optional.ofNullable(request);
+    }
+
+    public Set<Request> searchRequestsBy(
+            Optional<Long> jobId,
+            Optional<UUID> reqId,
+            Optional<RequestState> state
+
+    ) {
+        var found = requestRepository.searchBy(
+                jobId.orElse(null),
+                reqId.orElse(null),
+                state.orElse(null)
+        );
+        return Sets.newHashSet(found);
     }
 
     private boolean isValidTransition(RequestState from, RequestState to) {
