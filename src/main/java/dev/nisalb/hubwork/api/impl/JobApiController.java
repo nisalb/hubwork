@@ -6,8 +6,10 @@ import dev.nisalb.hubwork.api.payload.JobPayload;
 import dev.nisalb.hubwork.api.payload.RequestPayload;
 import dev.nisalb.hubwork.model.Job;
 import dev.nisalb.hubwork.model.JobState;
+import dev.nisalb.hubwork.model.Request;
 import dev.nisalb.hubwork.model.RequestState;
 import dev.nisalb.hubwork.service.JobService;
+import dev.nisalb.hubwork.service.RequestService;
 import jakarta.validation.Validator;
 import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +26,9 @@ public class JobApiController implements JobApi {
 
     @Setter(onMethod = @__({@Autowired}))
     private JobService jobService;
+
+    @Setter(onMethod = @__({@Autowired}))
+    private RequestService requestService;
 
     @Setter(onMethod = @__({@Autowired}))
     private Validator validator;
@@ -103,8 +108,20 @@ public class JobApiController implements JobApi {
 
     @Override
     public ResponseEntity<Object> makeRequest(Long id, RequestPayload payload) {
-        // TODO
-        return ResponseEntity.ok("makeRequest:" + id);
+        var validation = validate(payload, "invalid payload to create a request");
+        if (validation.isError()) {
+            return ResponseEntity.badRequest().body(validation);
+        }
+
+        var request = new Request();
+        var result = requestService.createRequest(payload, request);
+
+        if (result.isLeft()) {
+            ApiError error = result.getLeft();
+            return buildErrorResponse(error);
+        }
+
+        return ResponseEntity.ok(result.get());
     }
 
     @Override

@@ -1,5 +1,6 @@
 package dev.nisalb.hubwork.api.payload;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Builder;
 import lombok.Data;
@@ -12,6 +13,7 @@ import java.util.Map;
 @Builder
 public class ApiError {
     @Builder.Default
+    @JsonIgnore
     private boolean isError = true;
 
     private HttpStatus code;
