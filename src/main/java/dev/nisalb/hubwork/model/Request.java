@@ -2,7 +2,14 @@ package dev.nisalb.hubwork.model;
 
 import dev.nisalb.hubwork.model.key.RequestId;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
+import java.sql.Timestamp;
+import java.util.UUID;
 
 @Entity(name = "hw_jobrequest")
 @Getter
@@ -12,7 +19,7 @@ import lombok.*;
 public class Request {
 
     @Id
-    private Long id;
+    private UUID id;
 
     @Id
     @ManyToOne
@@ -31,6 +38,12 @@ public class Request {
     private User worker;
 
     private RequestState state;
+
+    @CreationTimestamp
+    private Timestamp createdAt;
+
+    @UpdateTimestamp
+    private Timestamp lastModifiedAt;
 
     public RequestId getId() {
         return new RequestId(id, job, worker);

@@ -9,16 +9,17 @@ import org.hibernate.Hibernate;
 
 import java.io.Serializable;
 import java.util.Objects;
+import java.util.UUID;
 
 @Getter
 @Setter
 @NoArgsConstructor
 public class RequestId implements Serializable {
-    private Long id;
+    private UUID id;
     private Job job;
     private User worker;
 
-    public RequestId(Long id, Job job, User worker) {
+    public RequestId(UUID id, Job job, User worker) {
         this.id = id;
         this.job = job;
         this.worker = worker;
