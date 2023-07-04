@@ -12,10 +12,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 import java.util.function.Supplier;
 
 @Service
@@ -81,7 +78,9 @@ public class UserService {
         var emails = usernames.stream()
                 .map(username -> faker.internet().emailAddress(username)).toList();
         var mobiles = getAUniqueListOf(count, () -> faker.phoneNumber().phoneNumber());
+
         var roles = UserRole.values();
+        Arrays.sort(roles);
 
         var rnd = new Random();
         var users = new ArrayList<User>();
@@ -93,7 +92,7 @@ public class UserService {
             u.setLastName(lastnames.get(i));
             u.setEmail(emails.get(i));
             u.setMobile(mobiles.get(i));
-            u.setRole(roles[rnd.nextInt(roles.length)]);
+            u.setRole(roles[i % roles.length]); // predictable roles for easier testing
             u.setAddress(getAFakeAddress(faker));
             u.setBusiness(businesses.get(rnd.nextInt(businesses.size())));
             users.add(u);
