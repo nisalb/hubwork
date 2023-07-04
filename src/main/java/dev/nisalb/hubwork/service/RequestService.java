@@ -15,10 +15,14 @@ import lombok.Setter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
+
+import static dev.nisalb.hubwork.model.RequestState.*;
+import static java.util.Map.entry;
 
 @Service
 public class RequestService {
@@ -34,71 +38,40 @@ public class RequestService {
     @Setter(onMethod = @__({@Autowired}))
     private JobRepository jobRepository;
 
+    private final static Map<RequestState, Set<RequestState>> validJobStateTransitions = Map.ofEntries(
+            entry(PENDING, Set.of(ACCEPTED, REJECTED, CANCELLED)),
+            entry(ACCEPTED, Set.of(CANCELLED)),
+            entry(REJECTED, Set.of(ACCEPTED, CANCELLED)),
+            entry(CANCELLED, Set.of())
+    );
+
     public Either<ApiError, Request> createRequest(RequestPayload payload, Request request) {
 
         var givenJob = jobRepository.findById(payload.getJobID());
         if (givenJob.isEmpty()) {
-            return Either.left(
-                    ApiError.builder()
-                            .code(HttpStatus.BAD_REQUEST)
-                            .title("INVALID_ID")
-                            .description("No such job for id: " + payload.getJobID())
-                            .build()
-            );
+            return Either.left(ApiError.noSuchJob(payload.getJobID()));
         }
 
         var job = givenJob.get();
         if (!job.getState().equals(JobState.PENDING)) {
-            String errorMessage = switch (job.getState()) {
-                case GRANTED -> "Job is already granted to a worker. ";
-                case COMPLETED -> "Job is completed. ";
-                case CANCELLED -> "Job is cancelled. ";
-                default -> "";
-            };
-            errorMessage += "Cannot make any more requests.";
-
-            return Either.left(
-                    ApiError.builder()
-                            .code(HttpStatus.BAD_REQUEST)
-                            .title("INVALID_JOB")
-                            .description(errorMessage)
-                            .build()
-            );
+            return Either.left(ApiError.invalidJobState(job.getState()));
         }
 
         var givenWorker = userRepository.findById(payload.getWorkerId());
         if (givenWorker.isEmpty()) {
-            return Either.left(
-                    ApiError.builder()
-                            .code(HttpStatus.BAD_REQUEST)
-                            .title("INVALID_ID")
-                            .description("No such user for id: " + payload.getWorkerId())
-                            .build()
-            );
+            return Either.left(ApiError.noSuchUser(payload.getWorkerId()));
         }
 
         var worker = givenWorker.get();
         if (!worker.getRole().equals(UserRole.WORKER)) {
-            return Either.left(
-                    ApiError.builder()
-                            .code(HttpStatus.BAD_REQUEST)
-                            .title("INVALID_USER")
-                            .description("specified user is not a worker")
-                            .build()
-            );
+            return Either.left(ApiError.invalidUserRole(worker.getRole()));
         }
 
         var requestId = new RequestId(UUID.randomUUID(), job, worker);
 
         var existingRequest = requestRepository.findById(requestId);
         if (existingRequest.isPresent()) {
-            return Either.left(
-                    ApiError.builder()
-                            .code(HttpStatus.BAD_REQUEST)
-                            .title("DUPLICATE_REQUEST")
-                            .description("This request is already created.")
-                            .build()
-            );
+            return Either.left(ApiError.duplicateRequest(requestId.getId()));
         }
 
         request.setId(requestId);
@@ -109,15 +82,41 @@ public class RequestService {
             saved = requestRepository.save(request);
         } catch (Exception ex) {
             logger.warn("Exception while creating the request", ex);
-            return Either.left(
-                    ApiError.builder()
-                            .code(HttpStatus.INTERNAL_SERVER_ERROR)
-                            .title("UNKNOWN_ERROR")
-                            .description("Unknown server error occurred while creating the request")
-                            .build()
-            );
+            return Either.left(ApiError.internalServerError());
         }
 
         return Either.right(saved);
+    }
+
+    public Either<ApiError, Request> updateRequest(Long jobId, UUID reqId, RequestPayload payload) {
+        var givenJob = jobRepository.findById(jobId);
+        if (givenJob.isEmpty()) {
+            return Either.left(ApiError.noSuchJob(jobId));
+        }
+
+        var givenRequest = requestRepository.findByUniqueId(reqId);
+        if (givenRequest.isPresent()) {
+            return Either.left(ApiError.noSuchRequest(reqId));
+        }
+
+        var request = givenRequest.get();
+        if (!isValidTransition(request.getState(), payload.getState())) {
+            return Either.left(ApiError.invalidRequestStateTransition(request.getState(), payload.getState()));
+        }
+
+        request.setState(payload.getState());
+
+        try {
+            request = requestRepository.save(request);
+        } catch (Exception ex) {
+            logger.warn("Unexpected error occurred while updating the job state.");
+        }
+
+        return Either.right(request);
+    }
+
+    private boolean isValidTransition(RequestState from, RequestState to) {
+        return validJobStateTransitions.containsKey(from) &&
+                validJobStateTransitions.get(from).contains(to);
     }
 }
