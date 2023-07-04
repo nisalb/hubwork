@@ -1,7 +1,9 @@
 package dev.nisalb.hubwork.model;
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 
 @Entity(name = "hw_business")
 @Getter
@@ -13,6 +15,7 @@ public class Business {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false)
     private String name;
 
     @OneToOne(cascade = {CascadeType.ALL})
