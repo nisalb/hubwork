@@ -3,7 +3,8 @@ package dev.nisalb.hubwork.service;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import dev.nisalb.hubwork.api.payload.ApiError;
-import dev.nisalb.hubwork.api.payload.RequestPayload;
+import dev.nisalb.hubwork.api.payload.CreateRequestPayload;
+import dev.nisalb.hubwork.api.payload.UpdateRequestPayload;
 import dev.nisalb.hubwork.model.JobState;
 import dev.nisalb.hubwork.model.Request;
 import dev.nisalb.hubwork.model.RequestState;
@@ -48,11 +49,11 @@ public class RequestService {
             entry(CANCELLED, Set.of())
     );
 
-    public Either<ApiError, Request> createRequest(RequestPayload payload, Request request) {
+    public Either<ApiError, Request> createRequest(Long jobId, CreateRequestPayload payload, Request request) {
 
-        var givenJob = jobRepository.findById(payload.getJobID());
+        var givenJob = jobRepository.findById(jobId);
         if (givenJob.isEmpty()) {
-            return Either.left(ApiError.noSuchJob(payload.getJobID()));
+            return Either.left(ApiError.noSuchJob(jobId));
         }
 
         var job = givenJob.get();
@@ -65,12 +66,12 @@ public class RequestService {
             return Either.left(ApiError.noSuchUser(payload.getWorkerId()));
         }
 
-        var worker = givenWorker.get();
-        if (!worker.getRole().equals(UserRole.WORKER)) {
-            return Either.left(ApiError.invalidUserRole(worker.getRole()));
+        var user = givenWorker.get();
+        if (!user.getRole().equals(UserRole.WORKER)) {
+            return Either.left(ApiError.invalidUserRole(user.getRole(), UserRole.WORKER));
         }
 
-        var requestId = new RequestId(UUID.randomUUID(), job, worker);
+        var requestId = new RequestId(UUID.randomUUID(), job, user);
 
         var existingRequest = requestRepository.findById(requestId);
         if (existingRequest.isPresent()) {
@@ -91,7 +92,7 @@ public class RequestService {
         return Either.right(saved);
     }
 
-    public Either<ApiError, Request> updateRequest(Long jobId, UUID reqId, RequestPayload payload) {
+    public Either<ApiError, Request> updateRequest(Long jobId, UUID reqId, UpdateRequestPayload payload) {
         var givenJob = jobRepository.findById(jobId);
         if (givenJob.isEmpty()) {
             return Either.left(ApiError.noSuchJob(jobId));
@@ -105,6 +106,11 @@ public class RequestService {
         var request = givenRequest.get();
         if (!isValidTransition(request.getState(), payload.getState())) {
             return Either.left(ApiError.invalidRequestStateTransition(request.getState(), payload.getState()));
+        }
+
+        if (payload.getState().equals(ACCEPTED)) {
+            var job = givenJob.get();
+            job.setWorker(request.getWorker());
         }
 
         request.setState(payload.getState());
@@ -137,7 +143,7 @@ public class RequestService {
         var found = requestRepository.searchBy(
                 jobId.orElse(null),
                 reqId.orElse(null),
-                state.orElse(null)
+                state.map(RequestState::name).orElse(null)
         );
         return Sets.newHashSet(found);
     }
