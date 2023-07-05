@@ -56,7 +56,8 @@ public class JobApiController implements JobApi {
             return error(result.getLeft());
         }
 
-        return ok(result.get());
+        var saved = result.get();
+        return created("/jobs/" + saved.getId(), saved);
     }
 
     @Override

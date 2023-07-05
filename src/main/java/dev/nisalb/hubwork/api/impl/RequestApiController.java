@@ -40,7 +40,8 @@ public class RequestApiController implements RequestApi {
             return error(result.getLeft());
         }
 
-        return ok(result.get());
+        var saved = result.get();
+        return created("/jobs/" + jobId + "/requests/" + saved.getId(), saved);
     }
 
     @Override
