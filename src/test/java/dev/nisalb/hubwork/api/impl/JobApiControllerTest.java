@@ -1,6 +1,5 @@
 package dev.nisalb.hubwork.api.impl;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.nisalb.hubwork.api.payload.ApiError;
 import dev.nisalb.hubwork.api.payload.JobPayload;
 import dev.nisalb.hubwork.model.Job;
@@ -36,15 +35,12 @@ class JobApiControllerTest {
     @Autowired
     private TestRestTemplate api;
 
-    @Autowired
-    private ObjectMapper jsonMapper;
-
     private String getbaseUrl() {
         return "http://localhost:" + port;
     }
 
     @Test
-    void findAllJobs() throws Exception {
+    void findAllJobs() {
         ResponseEntity<JobSet> response = api.getForEntity(getbaseUrl() + "/jobs", JobSet.class);
         assertEquals(HttpStatus.OK, response.getStatusCode());
     }
