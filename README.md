@@ -9,14 +9,47 @@ I'm using docker support for spring boot. So you can just up the API with
 $ ./gradlew bootRun
 ```
 
+If you want to up it without docker, please do as instructed in `build.gradle.kts`:
+
+1) remove spring-boot-docker-compose and postgresql from classpath
+2) add h2 to classpath
+
+When creating jobs and requests, `owner_id`s and `worker_id`s must be provided.
+Note that,
+
+1) ODD id numbers corresponds to CUSTOMERS and
+2) EVEN id numbers to WORKERS and
+3) 20 users and 5 businesses are populated at startup.
+
+For example, following payload is invalid when creating a Job
+
+```json
+{
+  "title": "Job 1",
+  "description": "My first job",
+  "price": 1000,
+  "state": "PENDING",
+  "due_date": "23-07-2023",
+  "currency_code": "USD",
+  "owner_id": 2,
+  "payment_methods": [
+    "CREDIT_CARD"
+  ]
+}
+```
+
+It would be valid if `$.owner_id` is `1` (or any other odd number)
+
 ## Caveats
 
-I have used several non-standard practices while implementing this to save time. While some are not optimal, some are my personal preferences.
-In addition to the following, there could be other bad or non-standard practices. But these are the significant ones I can think of.
+I have used several non-standard practices while implementing this to save time. While some are not optimal, some are my
+personal preferences.
+In addition to the following, there could be other bad or non-standard practices. But these are the significant ones I
+can think of.
 
 ### Not using DTOs
 
-I'm not using DTOs but endpoint-specific payloads and carefully serialized entity objects for this API. 
+I'm not using DTOs but endpoint-specific payloads and carefully serialized entity objects for this API.
 
 Endpoint-specific payload is helpful since this is a small project; with them, I could evolve my API as I wrote it. 
 Separate validations are possible for separate endpoints with their payload type being different. See:
