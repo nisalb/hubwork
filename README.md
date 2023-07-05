@@ -1,6 +1,14 @@
 # hubwork
 A demo freelancing REST API
 
+## Getting started
+
+I'm using docker support for spring boot. So you can just up the API with
+
+```sh
+$ ./gradlew bootRun
+```
+
 ## Caveats
 
 I have used several non-standard practices while implementing this to save time. While some are not optimal, some are my personal preferences.
