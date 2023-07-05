@@ -37,6 +37,7 @@ dependencies {
     annotationProcessor("org.projectlombok:lombok")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.hibernate.validator:hibernate-validator:8.0.1.Final")
+    testRuntimeOnly("com.h2database:h2")
 }
 
 tasks.withType<Test> {
