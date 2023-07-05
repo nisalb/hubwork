@@ -36,7 +36,7 @@ public class Job {
     @JoinColumn(
             name = "owner_id",
             nullable = false,
-            foreignKey = @ForeignKey(name = "owner_id_fk")
+            foreignKey = @ForeignKey(name = "job_owner_id_fk")
     )
     @JsonIgnore
     private User owner;
@@ -45,7 +45,7 @@ public class Job {
     @JoinColumn(
             name = "worker_id",
             nullable = true,
-            foreignKey = @ForeignKey(name = "worker_id_fk")
+            foreignKey = @ForeignKey(name = "job_worker_id_fk")
     )
     @JsonIgnore
     private User worker;

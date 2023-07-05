@@ -39,7 +39,7 @@ public class User {
     @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinColumn(
             name = "business_id",
-            foreignKey = @ForeignKey(name = "business_id_fk")
+            foreignKey = @ForeignKey(name = "user_business_id_fk")
     )
     @JsonIgnore
     private Business business;

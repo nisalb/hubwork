@@ -28,7 +28,7 @@ public class Request {
     @JoinColumn(
             name = "job_id",
             nullable = false,
-            foreignKey = @ForeignKey(name = "job_id_fk")
+            foreignKey = @ForeignKey(name = "request_job_id_fk")
     )
     @JsonIgnore
     private Job job;
@@ -38,7 +38,7 @@ public class Request {
     @JoinColumn(
             name = "worker_id",
             nullable = false,
-            foreignKey = @ForeignKey(name = "worker_id_fk")
+            foreignKey = @ForeignKey(name = "request_worker_id_fk")
     )
     @JsonIgnore
     private User worker;
