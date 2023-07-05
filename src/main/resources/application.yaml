@@ -3,3 +3,9 @@ spring:
     hibernate:
       ddl-auto: create-drop
     show-sql: true
+
+app:
+  setup:
+    count:
+      user: 20
+      business: 10
