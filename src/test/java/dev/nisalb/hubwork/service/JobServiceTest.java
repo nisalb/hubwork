@@ -206,7 +206,8 @@ class JobServiceTest {
     @Test
     @DisplayName("Job update")
     void testJobUpdateForGoodPayload() {
-        var payload = goodPayload();
+        var payload = new JobPayload();
+        payload.setTitle("Changed the title");
         var job = Mocker.newJob();
         Long jobId = 1L;
 
