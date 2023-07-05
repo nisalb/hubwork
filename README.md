@@ -20,6 +20,7 @@ Note that,
 1) ODD id numbers corresponds to CUSTOMERS and
 2) EVEN id numbers to WORKERS and
 3) 20 users and 5 businesses are populated at startup.
+4) use `app.setup.count.user` and `app.setup.count.business` to change these numbers
 
 For example, following payload is invalid when creating a Job
 
