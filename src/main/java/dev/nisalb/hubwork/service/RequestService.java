@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -39,6 +40,9 @@ public class RequestService {
 
     @Setter(onMethod = @__({@Autowired}))
     private JobRepository jobRepository;
+
+    @Setter(onMethod = @__({@Autowired}))
+    private MailService mailService;
 
     public Either<ApiError, Request> createRequest(Long jobId, CreateRequestPayload payload, Request request) {
 
@@ -80,6 +84,12 @@ public class RequestService {
             return Either.left(ApiError.internalServerError());
         }
 
+        mailService.sendMail(request.getWorker().getEmail(), "HubWork: New work request: " + job.getTitle(), List.of(
+                "Hi " + request.getWorker().getFirstName() + ",",
+                "You have received a new work request for a job",
+                "\t Title: " + request.getJob().getTitle()
+        ));
+
         return Either.right(saved);
     }
 
@@ -102,6 +112,11 @@ public class RequestService {
         if (payload.getState().equals(ACCEPTED)) {
             var job = givenJob.get();
             job.setWorker(request.getWorker());
+
+            mailService.sendMail(job.getOwner().getEmail(), "HubWork: Job accepted: " + job.getTitle(), List.of(
+                    "Hi " + job.getOwner().getFirstName(),
+                    request.getWorker().getFirstName() + " accepted your work request for job titled " + job.getTitle()
+            ));
         }
 
         request.setState(payload.getState());
