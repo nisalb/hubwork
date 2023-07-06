@@ -86,6 +86,8 @@ the swagger UI.
 
 This is under development at the time of writing this document. I'll push it under a different branch when completed.
 
+- **UPDATE (06 July 2023)**: A basic implementation of mail notifications has been added. However there are several things to improve
+
 [1]:(https://github.com/reified/hubwork/blob/main/src/main/java/dev/nisalb/hubwork/api/payload/JobPayload.java)
 [2]:(https://github.com/reified/hubwork/blob/main/src/main/java/dev/nisalb/hubwork/api/payload/CreateRequestPayload.java)
 [3]:(https://github.com/reified/hubwork/blob/main/src/main/java/dev/nisalb/hubwork/api/payload/UpdateRequestPayload.java)
