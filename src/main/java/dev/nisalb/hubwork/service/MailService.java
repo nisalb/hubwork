@@ -7,6 +7,7 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
@@ -58,7 +59,8 @@ public class MailService {
             try {
                 mailSender.send(message);
             } catch (Exception ex) {
-                logger.error("Exception occurred while sending mail: (to = " + to + ", subject = " + subject + ")");
+                logger.error("Exception occurred while sending mail: (to = " + Arrays.toString(message.getTo())
+                        + ", subject = " + message.getSubject() + ")");
             }
         });
     }
