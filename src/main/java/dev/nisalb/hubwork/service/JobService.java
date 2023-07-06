@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -29,6 +30,9 @@ public class JobService {
 
     @Setter(onMethod = @__({@Autowired}))
     private UserRepository userRepository;
+
+    @Setter(onMethod = @__({@Autowired}))
+    private MailService mailService;
 
     public Set<Job> findAllJobs() {
         var jobs = jobRepository.findAll();
@@ -81,6 +85,12 @@ public class JobService {
             return Either.left(ApiError.internalServerError());
         }
 
+        mailService.sendMail(owner.getEmail(), "HubWork: Job Created:" + job.getTitle(), List.of(
+                "Hi " + owner.getFirstName(),
+                "You job for '" + job.getTitle() + "' is now posted in HubWork.",
+                "You can now request a worker to take the job."
+        ));
+
         return Either.right(saved);
     }
 
@@ -110,6 +120,11 @@ public class JobService {
             logger.warn("Exception while updating the job", ex);
             return Either.left(ApiError.internalServerError());
         }
+
+        mailService.sendMail(job.getOwner().getEmail(), "HubWork: Job Updated: " + job.getTitle(), List.of(
+                "Hi " + job.getOwner().getFirstName(),
+                "Your job titled '" + job.getTitle() + "' has been updated."
+        ));
 
         return Either.right(job);
     }
